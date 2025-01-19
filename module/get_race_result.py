@@ -59,14 +59,21 @@ def get_race_result(race_url: str):
                     col_name = "Odds_Txt_C"
                 if(("Time" in col_name) and not re.match(pattern_time, val)):
                     continue
+                if("中止" in val):
+                    break
                 col_name = col_name.replace(" ", "_")
                 ### insert data into dict
                 if(col_name not in race_result):
                     race_result[col_name] = [val]
                 else:
                     race_result[col_name].append(val)
-    df = pd.DataFrame.from_dict(race_result)
-    print(df)
+    try:
+        df = pd.DataFrame.from_dict(race_result)
+    # print(df)
+    except:
+        print("error")
+        print(race_result)
+        return "-1"
     driver.close()
 
     return df
