@@ -12,7 +12,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 import pandas as pd
 import numpy as np
 
-def get_race_result(race_url: str):
+def parse_race_data(text):
+    parts = text.split('/')
+    parsed_data = {
+        '発走時間': parts[0].strip().replace('発走', ''),
+        'コース': parts[1].strip(),
+        '天候': parts[2].strip().replace('天候:', ''),
+        '馬場状態': parts[3].strip().replace('馬場:', '')
+    }
+    return parsed_data
+
+def get_race_result(race_id: str, race_url: str, race_date: str):
     # service = Service()
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
@@ -41,7 +51,7 @@ def get_race_result(race_url: str):
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#tab_ResultSelect_1_con')))
     html    = driver.page_source
     soup    = BeautifulSoup(html, 'lxml')
-    
+
     table_raw = soup.find('table', {'id': 'All_Result_Table'})
     race_result = {}
     ### extract table info
@@ -67,15 +77,23 @@ def get_race_result(race_url: str):
                     race_result[col_name] = [val]
                 else:
                     race_result[col_name].append(val)
+    ### extract race environment information
+    race_env = soup.find('div', {'class': 'RaceData01'}).text.strip().split("/")
     try:
         df = pd.DataFrame.from_dict(race_result)
-    # print(df)
+        df["race_id"] = race_id
+        df["race_date"] = race_date
+        df["start_time"] = race_env[0].strip().replace("発走", "")
+        df["cource"] = race_env[1].strip()
+        df["weather"] = race_env[2].strip().replace("天候:", "")
+        df["cource_condition"] = race_env[3].strip().replace("馬場:", "")
+        print(df)
+        
     except:
         print("error")
         print(race_result)
         return "-1"
     driver.close()
-
     return df
 
 if __name__ == '__main__':
