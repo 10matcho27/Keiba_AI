@@ -12,16 +12,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 import pandas as pd
 import numpy as np
 
-def parse_race_data(text):
-    parts = text.split('/')
-    parsed_data = {
-        '発走時間': parts[0].strip().replace('発走', ''),
-        'コース': parts[1].strip(),
-        '天候': parts[2].strip().replace('天候:', ''),
-        '馬場状態': parts[3].strip().replace('馬場:', '')
-    }
-    return parsed_data
-
 def get_race_result(race_id: str, race_url: str, race_date: str):
     # service = Service()
     options = webdriver.ChromeOptions()
@@ -51,10 +41,12 @@ def get_race_result(race_id: str, race_url: str, race_date: str):
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#tab_ResultSelect_1_con')))
     html    = driver.page_source
     soup    = BeautifulSoup(html, 'lxml')
+    # soup.prettify('Shift_JIS')
 
     table_raw = soup.find('table', {'id': 'All_Result_Table'})
     race_result = {}
     ### extract table info
+    print("Race Date:", race_date)
     for body in table_raw.find('tbody'):
         pattern_Odds = r"Odds (BgYellow|BgOrange|BgBlue02|Txt_C)"
         pattern_time = r"\d{1,2}:\d{2}\.\d"
@@ -69,7 +61,7 @@ def get_race_result(race_id: str, race_url: str, race_date: str):
                     col_name = "Odds_Txt_C"
                 if(("Time" in col_name) and not re.match(pattern_time, val)):
                     continue
-                if("中止" in val):
+                if(("中止" in val) or ("除外" in val) or ("取消" in val)):
                     break
                 col_name = col_name.replace(" ", "_")
                 ### insert data into dict
@@ -87,12 +79,14 @@ def get_race_result(race_id: str, race_url: str, race_date: str):
         df["cource"] = race_env[1].strip()
         df["weather"] = race_env[2].strip().replace("天候:", "")
         df["cource_condition"] = race_env[3].strip().replace("馬場:", "")
-        print(df)
+        # print(df)
         
     except:
         print("error")
         print(race_result)
-        return "-1"
+        df = pd.DataFrame()
+        return df
+    
     driver.close()
     return df
 
