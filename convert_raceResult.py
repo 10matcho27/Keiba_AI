@@ -91,13 +91,15 @@ if __name__ == '__main__':
                 "Race_Time",
                 "Race_Id",
                 "Race_Date"]
+    df_each_year = {}
     df = pd.DataFrame()
+
     os.makedirs(convdir, exist_ok=True)
     ## load race result to df
     for year in range(year_start, year_end + 1, 1):
         csv_name = 'raceResults_{year}.csv'.format(year=year)
         df_temp = pd.read_csv(rawdir + csv_name, header=None, low_memory=False)
-        df_temp.to_csv(convdir + csv_name, index = False, header = col_name)
+        df_each_year.update({year:df_temp})
         df = pd.concat([df, df_temp], axis=0)
     ## set column names and df formatting
     df.columns = col_name
@@ -105,6 +107,12 @@ if __name__ == '__main__':
     csv_name = "raceInfo_{year_start}_to_{year_end}_formatted.csv".\
                 format(year_start=year_start, year_end=year_end)
     df.to_csv(convdir + csv_name, index = False, header = True)
+    
+    for year, df in df_each_year.items():
+        csv_name = 'raceResults_{year}.csv'.format(year=year)
+        df.columns = col_name
+        df = df_formatting(df)
+        df.to_csv(convdir + csv_name, index = False, header = col_name)
     
     ## labelencoding 
     df, lebel_mapping, le_instances= encode_categorical(df, col_encode)
