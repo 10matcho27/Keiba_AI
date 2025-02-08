@@ -3,18 +3,26 @@ import module.get_race_info
 import csv
 import os
 import pandas as pd
+import argparse
 
 URL = 'https://race.netkeiba.com/top/calendar.html?year={year}&month={mon}'
 
 if __name__ == '__main__':
     # URL_LIST = []
-    year_start  = 2020
-    year_end    = 2025
-    try:
-        os.remove("./OUTPUT/race_result_info.csv")
-    except:
-        pass
+    psr = argparse.ArgumentParser("get race info of selected range year\n(e.g. race_ids, race_urls, race_dates)\n")
+    psr.add_argument('-s', '--start_year',  type=int,   required=True, help='the year you wanna start collecting data from')
+    psr.add_argument('-e', '--end_year',    type=int,   required=True, help='the year you wanna stop collecting data')
+
+    args = psr.parse_args()
+
+    year_start  = int(args.start_year)
+    year_end    = int(args.end_year)
+    
     for year in range(year_start, year_end + 1, 1):
+        try:
+            os.remove("./OUTPUT/raceInfo_{year}.csv".format(year = year))
+        except:
+            pass
         df = pd.DataFrame()
         for month in range(1, 12 + 1, 1):
             race_calendar = module.race_calendar.get_race_calendar(URL.format(year = year, mon = month))

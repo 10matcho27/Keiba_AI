@@ -19,8 +19,8 @@ def get_race_calendar(url: str) -> list[str]:
     return race_calendar
 
 if __name__ == '__main__':
-    year_start  = 2023
-    year_end    = 2024
+    year_start  = 1999
+    year_end    = 2000
     for year in range(year_start, year_end + 1, 1):
         for month in range(1, 12 + 1, 1):
             race_calendar = get_race_calendar(URL.format(year = year, mon = month))
