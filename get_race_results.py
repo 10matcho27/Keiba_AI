@@ -3,9 +3,9 @@ import os
 import pandas as pd
 import csv
 
-def search_race_info_csv():
+def search_race_info_csv(search_dir: str):
     fullpaths = []
-    for dirpath, dirnames, filenames in os.walk('./OUTPUT'):
+    for dirpath, dirnames, filenames in os.walk(search_dir):
         for filename in filenames:
             if(filename.endswith(".csv") and "raceInfo" in filename):
                 # print(os.path.join(dirpath, filename))
@@ -27,14 +27,14 @@ def init(collected_race_id_file):
                     .translate(str.maketrans({"[": None, "]": None, "'": None})) for row in reader]
     except:
         pass
-    
     return list
 
 if __name__ == '__main__':
-    collected_race_id_file = "./OUTPUT/collected_race_ids.csv"
-    list_collected = init(collected_race_id_file)
+    rawdir = "./OUTPUT/RAW/"
+    collected_race_id_file = "collected_race_ids.csv"
+    list_collected = init(rawdir + collected_race_id_file)
 
-    csv_files = search_race_info_csv()
+    csv_files = search_race_info_csv(rawdir)
     for csvfile in csv_files:
         first_row_flag = True
         with open(csvfile) as fr:
@@ -57,7 +57,7 @@ if __name__ == '__main__':
                                 errors      =   "ignore",           \
                                 mode        =   'a',                \
                                 )
-                    with open(collected_race_id_file, mode = 'a') as fw:
+                    with open(rawdir + collected_race_id_file, mode = 'a') as fw:
                         fw.write(race_id + "\n")
                 else:
                     first_row_flag = False

@@ -7,20 +7,22 @@ import argparse
 
 URL = 'https://race.netkeiba.com/top/calendar.html?year={year}&month={mon}'
 
-if __name__ == '__main__':
-    # URL_LIST = []
+def get_args():
     psr = argparse.ArgumentParser("get race info of selected range year\n(e.g. race_ids, race_urls, race_dates)\n")
     psr.add_argument('-s', '--start_year',  type=int,   required=True, help='the year you wanna start collecting data from')
     psr.add_argument('-e', '--end_year',    type=int,   required=True, help='the year you wanna stop collecting data')
+    return psr.parse_args()
 
-    args = psr.parse_args()
-
+if __name__ == '__main__':
+    args = get_args()
     year_start  = int(args.start_year)
     year_end    = int(args.end_year)
+    rawdir = "./OUTPUT/RAW/"
     
     for year in range(year_start, year_end + 1, 1):
+        csv_name = "raceInfo_{year}.csv".format(year = year)
         try:
-            os.remove("./OUTPUT/raceInfo_{year}.csv".format(year = year))
+            os.remove(rawdir + csv_name)
         except:
             pass
         df = pd.DataFrame()
@@ -33,5 +35,5 @@ if __name__ == '__main__':
                 for key in race_info.keys():
                     df_tmp[key] = race_info[key]
                 df = pd.concat([df, df_tmp], axis = 0).reset_index(drop=True)
-        df.to_csv("./OUTPUT/raceInfo_{year}.csv".format(year = year), index = False)
+        df.to_csv(rawdir + csv_name, index = False)
         print(df)
