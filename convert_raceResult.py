@@ -97,6 +97,7 @@ if __name__ == '__main__':
     for year in range(year_start, year_end + 1, 1):
         csv_name = 'raceResults_{year}.csv'.format(year=year)
         df_temp = pd.read_csv(rawdir + csv_name, header=None, low_memory=False)
+        df_temp.to_csv(convdir + csv_name, index = False, header = col_name)
         df = pd.concat([df, df_temp], axis=0)
     ## set column names and df formatting
     df.columns = col_name
