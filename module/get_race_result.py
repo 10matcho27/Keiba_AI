@@ -61,7 +61,7 @@ def get_race_result(race_id: str, race_url: str, race_date: str):
                     col_name = "Odds_Txt_C"
                 if(("Time" in col_name) and not re.match(pattern_time, val)):
                     continue
-                if(("中止" in val) or ("除外" in val) or ("取消" in val)):
+                if(("中止" in val) or ("除外" in val) or ("取消" in val) or ("失格" in val)):
                     break
                 col_name = col_name.replace(" ", "_")
                 ### insert data into dict
